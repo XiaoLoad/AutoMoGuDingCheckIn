@@ -261,8 +261,13 @@ def submit_weekly_report(
         submitted_reports_info = api_client.get_submitted_reports_info("week")
         submitted_reports = submitted_reports_info.get("data", [])
 
+        # 过滤出按时提交的记录
+        on_time_count = sum(report.get("isOnTime") == 1 for report in submitted_reports)
+        late_count = len(submitted_reports) - on_time_count
+        logger.info(f"该用户共提交{on_time_count}份按时周报，{late_count}份补交周报，共计{on_time_count + late_count}份周报")
+
         # 获取当前周数
-        week = submitted_reports_info.get("flag", 0) + 1
+        week = on_time_count + 1
         current_week_string = f"第{week}周"
 
         # 检查是否已经提交过本周的周报
